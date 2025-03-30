@@ -10,5 +10,13 @@ export const userPutDataValidation = simplifiedValidation({
     surname: ["length-1-30", "n-empty"],
     genderId: ["in-f-m", "optional"],
     dateOfBirth: ["date-between-1900.01.01-now", "optional"],
-    image: ["length-0-500", "optional"]
+});
+
+export const userChangeEmailValidation = simplifiedValidation({
+    newEmail: ["email", "length-6-254", "n-empty"],
+});
+
+export const userChangePasswordValidation = simplifiedValidation({
+    password: ["length-8-64", "n-empty"],
+    newPassword: ["length-8-64", "n-empty"],
 });

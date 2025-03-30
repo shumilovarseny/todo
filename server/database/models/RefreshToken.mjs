@@ -13,6 +13,7 @@ const RefreshToken = sequelize.define(
             type: DataTypes.STRING(254),
             allowNull: false,
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             references: {
                 model: User,
                 key: "email"

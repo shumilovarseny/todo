@@ -17,6 +17,7 @@ const Task = sequelize.define(
         status: DataTypes.BOOLEAN,
         directorId: {
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {

@@ -41,10 +41,10 @@ export const $createProject = async ({ name, description, image }) => {
     }
 }
 
-export const $editProject = async ({ name, description, status, id, image }) => {
+export const $editProject = async ({ name, description, status, projectId, image }) => {
     try {
         const formData = new FormData();
-        const payload = { name, description, status, projectId: id, image };
+        const payload = { name, description, status, projectId, image };
         for (let key in payload) {
             formData.append(key, payload[key])
         }

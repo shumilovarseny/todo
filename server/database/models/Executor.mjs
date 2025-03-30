@@ -11,6 +11,7 @@ const Executor = sequelize.define(
             primaryKey: true,
             allowNull: false,
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             references: {
                 model: Task,
                 key: "id"
@@ -21,6 +22,7 @@ const Executor = sequelize.define(
             primaryKey: true,
             allowNull: false,
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             references: {
                 model: Member,
                 key: "id"

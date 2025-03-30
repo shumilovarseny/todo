@@ -31,9 +31,9 @@ function App() {
   useEffect(() => {
     const init = async () => {
       const pathname = window.location.pathname;
-      if (pathname.startsWith("/projects")) title = setTitle("Проекты");
-      else if (pathname.startsWith("/account")) title = setTitle("Аккаунт");
-      else title = setTitle("Задачи");
+      if (pathname.startsWith("/projects")) setTitle("Проекты");
+      else if (pathname.startsWith("/account")) setTitle("Аккаунт");
+      else setTitle("Задачи");
     };
     init();
   }, [location.pathname]);
@@ -63,7 +63,7 @@ function App() {
                 ) : (
                   <div className="rounded-4xl border w-full h-full flex">
                     <span className="m-auto text-[22px] leading-0">
-                      {tokenData.surname.slice(0, 1)}
+                      {tokenData.surname?.slice(0, 1)}
                     </span>
                   </div>
                 )}

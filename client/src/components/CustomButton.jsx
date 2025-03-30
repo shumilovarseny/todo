@@ -5,7 +5,7 @@ export const CustomButton = ({
   className,
   click,
   text = 22,
-  size = [3, 40],
+  size = [3, 35],
 }) => {
   return (
     <button

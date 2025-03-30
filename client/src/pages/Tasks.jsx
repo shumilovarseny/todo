@@ -66,7 +66,7 @@ export const Tasks = () => {
 
   useEffect(() => {
     const init = async () => {
-      const projectsData = await $getProjects(projectsSearch, "all");
+      const projectsData = await $getProjects(projectsSearch, "active");
       if (!projectsData.error) setProjects(projectsData);
       if (projectsData.length) setSelectedProject(projectsData[0]);
       else
@@ -119,7 +119,6 @@ export const Tasks = () => {
   useEffect(() => {
     const init = async () => {
       if (!projectsFilter.length) setTasks([]);
-
       const tasks = await $getTasks(
         projectsFilter,
         searchTasks,
@@ -220,8 +219,9 @@ export const Tasks = () => {
           </div>
           <div className="border text-[22px] px-[10px] py-[3px] rounded-b-md border-t-0 h-[50px] items-center flex justify-between">
             <div className="flex space-x-[5px] relative">
-              {MODAL_WINDOW_BUTTON.map(({ value, name }) => (
+              {MODAL_WINDOW_BUTTON.map(({ value, name }, index) => (
                 <TaskButton
+                  key={index}
                   name={name}
                   click={() => {
                     if (value == windowActive) setWindowActive(null);
@@ -401,6 +401,7 @@ export const Tasks = () => {
         {tasks.map(
           (
             {
+              id,
               status,
               name,
               dueDate,
@@ -413,8 +414,10 @@ export const Tasks = () => {
             index
           ) => {
             const dateObject = new Date(dueDate);
+
             return (
               <Task
+                id={id}
                 status={status}
                 name={name}
                 dueDate={`${dateObject.toLocaleDateString()} ${dateObject.toLocaleTimeString()}`}

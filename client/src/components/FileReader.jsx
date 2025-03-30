@@ -27,7 +27,7 @@ export const FileReader = ({ children, image, setImage }) => {
         </label>
         <div className="flex flex-grow">
           <button
-            className="border rounded-md px-[10px] text-[16px] ml-[10px] flex-grow cursor-pointer"
+            className="border rounded-md px-[10px] text-[20px] ml-[10px] flex-grow cursor-pointer"
             onClick={() => {
               setImage(null);
               inputFileRef.current.value = "";

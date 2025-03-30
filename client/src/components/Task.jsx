@@ -4,8 +4,10 @@ import { ImageButtom } from "./ImageButtom";
 import { AccountLink } from "./AccountLink";
 import { TaskButton } from "./TaskButton";
 import { CustomInput } from "./CustomInput";
+import { $changeStatusTask } from "../http/tasksApi";
 
 export const Task = ({
+  id,
   status,
   name,
   dueDate,
@@ -16,6 +18,13 @@ export const Task = ({
   project,
 }) => {
   const [optional, setOptional] = useState(false);
+  const [statusTask, changeStatusTask] = useState(status);
+  const changeStatus = async () => {
+    const task = $changeStatusTask(id, !statusTask);
+    if (task.error) setErrorMessage(task.error);
+    else changeStatusTask(!statusTask);
+  };
+
   return (
     <div className="my-[5px]">
       <div
@@ -27,7 +36,8 @@ export const Task = ({
           <input
             type="checkbox"
             className="w-[25px] h-[25px]"
-            checked={!status}
+            checked={statusTask}
+            onClick={() => changeStatus(!statusTask)}
           />
         </div>
         <div className="w-full">{name}</div>
@@ -39,27 +49,20 @@ export const Task = ({
           />
         </div>
         <div className="w-full">{dueDate}</div>
-        <div className="flex space-x-[10px] items-center">
-          <select
-            className="outline-0 border rounded-md text-[18px]"
-            disabled
-            value={priority}
-          >
-            <option value={true}>Ключевая</option>
-            <option value={false}>Второстепенная</option>
-          </select>
-          <TaskButton
-            name={"Дополнительно"}
-            click={() => setOptional(!optional)}
-          ></TaskButton>
-          {/* <TaskButton
-            name={"Изменить"}
-            className="bg-gray-100 text-gray-400"
-          ></TaskButton>
-          <TaskButton
-            name={"Удалить"}
-            className="bg-gray-100 text-gray-400"
-          ></TaskButton> */}
+        <div>
+          <div className="flex justify-between items-center  w-[300px]">
+            <div className="w-[150px]">
+              <div className="flex outline-0 border rounded-md text-[18px] px-[10px] border-dashed">
+                <span className="m-auto">
+                  {priority ? "Ключевая" : "Второстепенная"}
+                </span>
+              </div>
+            </div>
+            <TaskButton
+              name={"Дополнительно"}
+              click={() => setOptional(!optional)}
+            ></TaskButton>
+          </div>
         </div>
       </div>
       <div

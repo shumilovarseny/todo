@@ -15,7 +15,7 @@ export const CustomInput = ({
       <span className="flex text-[22px] items-center">{children}</span>
       <input
         type={type}
-        className={`border-1 rounded-md my-[10px] text-[20px] py-[3px]  w-full px-[20px] ${className} outline-0`}
+        className={`border-1 rounded-md my-[10px] text-[20px] py-[3px]  w-full px-[10px] ${className} outline-0`}
         placeholder={placeholder}
         ref={refer}
         value={data}

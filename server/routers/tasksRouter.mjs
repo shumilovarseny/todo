@@ -1,16 +1,19 @@
-import { Router } from "express";
-import { checkSchema, matchedData, validationResult } from "express-validator";
-import { addExecutorValidation, deleteExecutorValidation, deleteTaskValidation, getTasksValidation, postTaskValidation, updateTaskValidation } from "../validations/tasksValidation.mjs";
-import { addExecutor, createTask, deleteExecutor, deleteTask, getTasks, updateTask } from "../controllers/tasksController.mjs";
+import { request, response, Router } from "express";
+import { check, checkSchema, matchedData, validationResult } from "express-validator";
+import { addExecutorValidation, changeExecutionStatusValidation, deleteExecutorValidation, deleteTaskValidation, getTasksValidation, postTaskValidation, updateTaskValidation } from "../validations/tasksValidation.mjs";
+import { addExecutor, changeExecutionStatus, createTask, deleteExecutor, deleteTask, getTasks, updateTask } from "../controllers/tasksController.mjs";
 
 const tasksRouter = Router({});
 
-tasksRouter.get('/', checkSchema(getTasksValidation), async (request, response) => {
+tasksRouter.get('/', [
+    checkSchema(getTasksValidation),
+    check("projects.*").optional().isInt()
+], async (request, response) => {
     const validation = validationResult(request);
     if (validation.errors.length) return response.status(400).send({ error: "Ошибка валидации" });
     const login = request.login;
     const { projects, search, sort, direction, filter, type } = matchedData(request);
-    const tasks = await getTasks(projects, search, sort, direction, filter, login, type);
+    const tasks = await getTasks(projects || [], search, sort, direction, filter, login, type);
     if (tasks.error) return response.status(500).json({ error: "При поиске задач произошла ошибка на сервере" });
 
     return response.status(200).json(tasks);
@@ -40,6 +43,27 @@ tasksRouter.put('/', checkSchema(updateTaskValidation), async (request, response
         return response.status(status).json({ error: message });
     }
 
+    return response.status(200).json(task);
+})
+
+tasksRouter.put('/status', checkSchema(changeExecutionStatusValidation), async (request, response) => {
+    const validation = validationResult(request);
+    if (validation.errors.length) return response.status(400).send({ error: "Ошибка валидации" });
+
+    const { id, status } = matchedData(request);
+    const task = await changeExecutionStatus(id, status);
+    if (task.error) {
+        let message, status;
+        if (task.error.errorCode == "ERR_NO_DATA_FOUND") {
+            message = "Не удалось найти задачу";
+            status = task.error.statusCode;
+        }
+        else {
+            message = "При изменении задачи произошла ошибка на сервере";
+            status = 500;
+        }
+        return response.status(status).json({ error: message });
+    }
     return response.status(200).json(task);
 })
 

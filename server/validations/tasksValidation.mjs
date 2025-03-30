@@ -31,7 +31,7 @@ export const updateTaskValidation = simplifiedValidation({
 });
 
 export const getTasksValidation = simplifiedValidation({
-    projects: ["array-int,n-empty,query"],
+    projects: ["query"],
     search: ["query"],
     sort: ["in-name-dueDate-priority", "query"],
     direction: ["in-asc-desc", "query"],
@@ -39,3 +39,7 @@ export const getTasksValidation = simplifiedValidation({
     type: ["in-executor-director", "query"]
 });
 
+export const changeExecutionStatusValidation = simplifiedValidation({
+    id: ["int"],
+    status: ["boolean"]
+})

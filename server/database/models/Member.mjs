@@ -16,6 +16,7 @@ const Member = sequelize.define(
             type: DataTypes.STRING(254),
             allowNull: false,
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             references: {
                 model: User,
                 key: "email"
@@ -25,6 +26,7 @@ const Member = sequelize.define(
             type: DataTypes.INTEGER,
             allowNull: false,
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             references: {
                 model: Project,
                 key: "id"

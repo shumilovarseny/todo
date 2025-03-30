@@ -15,6 +15,7 @@ const Request = sequelize.define(
             type: DataTypes.INTEGER,
             allowNull: false,
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             references: {
                 model: Member,
                 key: "id"
@@ -25,6 +26,7 @@ const Request = sequelize.define(
             unique: true,
             allowNull: false,
             onDelete: "CASCADE",
+            onUpdate: "CASCADE",
             references: {
                 model: Notification,
                 key: "id"

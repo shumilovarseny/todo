@@ -3,7 +3,7 @@ import Executor from "../database/models/Executor.mjs";
 import { AccessDenied, AlreadyExistsError, FailedComplete, NoDataFound, returnErrorInfo } from "../utils/errors.mjs";
 import { findMember } from "./membersController.mjs";
 import accessRules from "../utils/accessRules.mjs"
-import Sequelize, { Op } from "@sequelize/core";
+import Sequelize, { Op, where } from "@sequelize/core";
 import Project from "../database/models/Project.mjs";
 import User from "../database/models/Users.mjs";
 
@@ -69,7 +69,7 @@ export const createTask = async (name, dueDate, description, priority, userId, p
             dueDate,
             description,
             priority: priority == "true" ? true : false,
-            status: true,
+            status: false,
             directorId: directorId.id
         })
         if (!task) throw new FailedComplete();
@@ -82,28 +82,26 @@ export const getTasks = async (projects, search, sort, direction, filter, userId
         const projectsId = [];
         projects.forEach(key => projectsId.push({ projectId: key }));
         const tasksOption = [{ name: { [Op.iLike]: `%${search}%` } }];
-
         const date = new Date();
         switch (filter) {
             case "today":
                 tasksOption.push(Sequelize.literal(`DATE("dueDate") = DATE('${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}')`));
-                tasksOption.push({ status: true });
+                tasksOption.push({ status: false });
                 break;
             case "planned":
                 tasksOption.push({ dueDate: { [Op.gte]: date } });
-                tasksOption.push({ status: true });
+                tasksOption.push({ status: false });
                 break;
             case "completed":
-                tasksOption.push({ status: false });
+                tasksOption.push({ status: true });
                 break;
             case "overdue":
                 tasksOption.push({ dueDate: { [Op.lte]: date } });
-                tasksOption.push({ status: true });
+                tasksOption.push({ status: false });
                 break
             default:
                 break
         }
-
         const tasks = await Task.findAll({
             where: { [Op.and]: tasksOption },
             order: [[sort, direction]],
@@ -144,6 +142,7 @@ export const getTasks = async (projects, search, sort, direction, filter, userId
         const editedDataTasks = [];
         tasks.forEach((task) => {
             const data = {
+                id: task.id,
                 status: task.status,
                 name: task.name,
                 dueDate: task.dueDate,
@@ -210,6 +209,18 @@ export const deleteTask = async (login, taskId) => {
         return { taskId };
     } catch (e) { return returnErrorInfo(e); }
 };
+
+export const changeExecutionStatus = async (id, status) => {
+    try {
+        const task = await Task.update(
+            { status },
+            { where: { id } }
+        )
+        if (!task) throw new FailedComplete();
+        if (!task[0]) throw new NoDataFound();
+        return task
+    } catch (e) { return returnErrorInfo(e); }
+}
 
 export const addExecutor = async (login, taskId, memberId) => {
     try {

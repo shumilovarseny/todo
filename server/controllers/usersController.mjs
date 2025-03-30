@@ -14,9 +14,38 @@ export const getUserInfo = async (email) => {
     } catch (e) { return returnErrorInfo(e); }
 };
 
+export const updateUserEmail = async (email, newEmail) => {
+    try {
+        const alreadyExists = await User.findOne({ where: { email: newEmail } });
+        if (alreadyExists) throw new AlreadyExistsError();
+        const user = await User.update(
+            { email: newEmail },
+            { where: { email } }
+        );
+        if (!user) throw new FailedComplete();
+        return { newEmail }
+    } catch (e) { return returnErrorInfo(e); }
+};
+
+export const updateUserPassword = async (email, password, newPassword) => {
+    try {
+        const user = await User.update(
+            { password: newPassword },
+            { where: { email, password } }
+        );
+        if (!user) throw new FailedComplete();
+        if (!user[0]) throw new AccessDenied();
+        return { email }
+    } catch (e) { return returnErrorInfo(e); }
+};
+
 export const updateUserInfo = async (login, email, name, surname, dateOfBirth, genderId, image) => {
     try {
         if (login != email) throw new AccessDenied();
+
+        const oldImage = await User.findOne({ where: { email }, attributes: ['image', 'email'] });
+        if (!oldImage) throw new NoDataFound();
+
         const updateResult = await User.update(
             {
                 name,
@@ -31,18 +60,15 @@ export const updateUserInfo = async (login, email, name, surname, dateOfBirth, g
         );
         if (!updateResult) throw new FailedComplete();
         if (!updateResult[0]) throw new NoDataFound();
-        const user = await getUserInfo(email);
-        if (!user) throw new NoDataFound();
-        delete user.password;
-        return user;
+        return oldImage;
     } catch (e) { return returnErrorInfo(e); }
 };
 
 export const deleteUser = async (email) => {
-
-    const deleteResult = await User.destroy({ where: { email } });
-    if (deleteResult == 0) throw new NoDataFound();
-    if (!deleteResult) throw new FailedComplete();
-    return { email }
-
+    try {
+        const deleteResult = await User.destroy({ where: { email } });
+        if (deleteResult == 0) throw new NoDataFound();
+        if (!deleteResult) throw new FailedComplete();
+        return { email }
+    } catch (e) { return returnErrorInfo(e); }
 }

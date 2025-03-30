@@ -12,10 +12,11 @@ export const $getUser = async (email) => {
 export const $editUser = async ({ email, name, surname, password, dateOfBirth, genderId, image }) => {
     try {
         const payload = { email, name, surname, password, dateOfBirth, genderId, image };
-        const filteredEntries = Object.fromEntries(
-            Object.entries(payload).filter(([, value]) => value != null)
-        );
-        const { data } = await $host.put(`/users/`, filteredEntries);
+        const formData = new FormData();
+        for (let key in payload) {
+            if (payload[key] != null) formData.append(key, payload[key])
+        }
+        const { data } = await $host.put(`/users/`, formData);
         return data;
     } catch (e) {
         return e.response.data;
@@ -30,3 +31,21 @@ export const $deleteUser = async () => {
         return e.response.data;
     }
 };
+
+export const $changeEmail = async (newEmail) => {
+    try {
+        const data = await $host.put('/users/change-email', { newEmail })
+        return data;
+    } catch (e) {
+        return e.response.data;
+    }
+}
+
+export const $changePassword = async (password, newPassword) => {
+    try {
+        const data = await $host.put('/users/change-password', { password, newPassword })
+        return data;
+    } catch (e) {
+        return e.response.data;
+    }
+}

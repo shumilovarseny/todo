@@ -46,13 +46,11 @@ export const ProjectsListsElement = ({
           checked={checked[id]}
           onClick={(e) => {
             const payload = { ...checked, [id]: e.target.checked };
-            console.log(payload);
             setChecked(payload);
             const checkedProjects = [];
             Object.entries(payload).forEach(([key, value]) => {
               if (value) checkedProjects.push(key);
             });
-            setProjects(checkedProjects);
           }}
         />
       </label>

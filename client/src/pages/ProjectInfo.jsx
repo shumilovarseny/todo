@@ -21,6 +21,7 @@ import { FileReader } from "../components/FileReader";
 import { handleImageChange } from "../utils/fileReader";
 import { $getImage } from "../http/serverApi";
 import { ModalWinodw } from "../components/ModalWinodw";
+import { Warning } from "../components/Warning";
 
 export const ProjectInfo = ({ newProject = false }) => {
   const { projectId } = useParams();
@@ -44,6 +45,8 @@ export const ProjectInfo = ({ newProject = false }) => {
   const [projectFile, setProjectFile] = useState(null);
   const [projectImage, setProjectImage] = useState(null);
   const [viewWarning, setViewWarning] = useState(null);
+  const [viewDeleteProjectWarning, setViewDeleteProjectWarning] =
+    useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -52,7 +55,10 @@ export const ProjectInfo = ({ newProject = false }) => {
         if (!projectData.error) {
           setProject(projectData);
           setDirector(projectData.director);
-          const image = await $getImage(UPLOAD_IMAGE_PATH + projectData.image);
+          console.log();
+          const image = projectData.image
+            ? await $getImage(UPLOAD_IMAGE_PATH + projectData.image)
+            : null;
           setProjectImage(image);
         }
       }
@@ -74,8 +80,17 @@ export const ProjectInfo = ({ newProject = false }) => {
     }
     let result;
     if (newProject)
-      result = await $createProject({ ...project, image: projectFile });
-    else result = await $editProject({ ...project, image: projectFile });
+      result = await $createProject({
+        ...project,
+        image: projectFile,
+        projectId: project.id,
+      });
+    else
+      result = await $editProject({
+        ...project,
+        image: projectFile,
+        projectId: project.id,
+      });
 
     if (result.error) setErrorMessage(result.error);
     else if (newProject) window.location.assign(`/projects/${result.id}`);
@@ -187,12 +202,25 @@ export const ProjectInfo = ({ newProject = false }) => {
           </div>
         </div>
         <div
-          className={`space-x-[15px] ${
+          className={`space-x-[15px] relative ${
             director?.email != account && !newProject && "hidden"
           }`}
         >
-          <CustomButton click={deleteProject}>Удалить</CustomButton>
+          <CustomButton
+            click={() => setViewDeleteProjectWarning(true)}
+            className={newProject && "hidden"}
+          >
+            Удалить
+          </CustomButton>
           <CustomButton click={editProject}>Сохранить</CustomButton>
+          <div className={`absolute top-[45px] left-[-35px]`}>
+            <Warning
+              hide={!viewDeleteProjectWarning}
+              message="Вы уверены, что хотите удалить проект?"
+              agree={() => deleteProject()}
+              disagree={() => setViewDeleteProjectWarning(false)}
+            />
+          </div>
         </div>
       </div>
       <div className="flex mt-[20px] space-x-[15px] flex-grow">
@@ -248,7 +276,7 @@ export const ProjectInfo = ({ newProject = false }) => {
             <div className="flex flex-col flex-grow">
               <textarea
                 className="w-full border rounded-md resize-none mt-[10px] flex-grow p-[10px] outline-0"
-                value={project.description}
+                value={project.description ? project.description : ""}
                 placeholder="Описание"
                 disabled={!newProject && director?.email != account}
                 onChange={(value) =>
@@ -285,34 +313,13 @@ export const ProjectInfo = ({ newProject = false }) => {
             change={(value) => setSearch(value)}
           ></CustomInput>
           <div className="flex flex-col border rounded-md p-[5px] flex-grow h-[0px] overflow-auto space-y-[10px] relative">
-            <div
-              className={`absolute  left-[150px] top-[15px] ${
-                !viewWarning && "hidden"
-              }`}
-            >
-              <ModalWinodw name="Предупреждение">
-                <div className="flex flex-col border py-[5px] border-dashed">
-                  <span className="text-[18px] m-auto text-center">
-                    Вы уверены, что хотите передать права владельца проекта?
-                  </span>
-                  <div className="flex mt-[5px] space-x-[10px] m-auto">
-                    <CustomButton
-                      text={18}
-                      size={[1, 15]}
-                      click={() => editMemberRole(viewWarning, "s")}
-                    >
-                      Да
-                    </CustomButton>
-                    <CustomButton
-                      text={18}
-                      size={[1, 15]}
-                      click={() => setViewWarning(null)}
-                    >
-                      Нет
-                    </CustomButton>
-                  </div>
-                </div>
-              </ModalWinodw>
+            <div className={`absolute left-[150px] top-[15px]`}>
+              <Warning
+                hide={!viewWarning}
+                message="Вы уверены, что хотите передать права владельца проекта?"
+                agree={() => editMemberRole(viewWarning, "s")}
+                disagree={() => setViewWarning(null)}
+              />
             </div>
             {returnMembers()}
           </div>
